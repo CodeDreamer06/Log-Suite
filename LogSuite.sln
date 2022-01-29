@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32112.339
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogSuite", "LogSuite.csproj", "{2C135BE4-63C2-4E5C-A2EB-8DBF1628A81A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2C135BE4-63C2-4E5C-A2EB-8DBF1628A81A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2C135BE4-63C2-4E5C-A2EB-8DBF1628A81A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2C135BE4-63C2-4E5C-A2EB-8DBF1628A81A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2C135BE4-63C2-4E5C-A2EB-8DBF1628A81A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {15A4952A-E4DB-4F56-8855-0F935C7B53D6}
+	EndGlobalSection
+EndGlobal
