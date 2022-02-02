@@ -19,10 +19,10 @@ namespace LogSuite
 
             var actions = new Dictionary<int, Action>
             {
-              { 1, ShowAll },
-              { 2, Add },
-              { 3, Remove },
-              { 4, Edit }
+              { 1, Read },
+              { 2, Create },
+              { 3, Delete },
+              { 4, Update }
             };
 
             while (true)
@@ -42,23 +42,56 @@ namespace LogSuite
                         actions[Convert.ToInt32(command)]();
                     }
 
-                    catch (Exception ex)
+                    catch
                     {
-                        Console.WriteLine(ex.ToString());
                         Console.WriteLine("Not a command. Use 'help' if required. ");
                     }
                 }
             }
         }
 
-        private static void Edit()
+        private static void Create()
         {
             using (var db = new TransactionContext())
             {
                 try
                 {
+                    var transactionData = AcceptInput("Customer Name", "Total Price");
+                    db.Add(new Transaction { CustomerName = transactionData[0], TotalPrice = float.Parse(transactionData[1]) });
+                    db.SaveChanges();
+                    Console.WriteLine($"Successfuly added {transactionData[0]} with a bill of {transactionData[1]}");
+                }
+
+                catch
+                {
+                    Console.WriteLine("Make sure you are entering valid values");
+                }
+            }
+        }
+
+        private static void Read()
+        {
+            using (var db = new TransactionContext())
+            {
+                var transactions = db.transactions!.OrderBy(t => t.Id).ToList();
+                for (int i = 0; i < transactions.Count; i++)
+                {
+                    var item = transactions[i];
+                    Console.WriteLine($"{i+1}  {item.CustomerName}  {item.TotalPrice}   {item.CreatedOn}");
+                }
+            }
+        }
+
+        private static void Update()
+        {
+            using (var db = new TransactionContext())
+            {
+                var transactions = db.transactions!.OrderBy(t => t.Id).ToList();
+                try
+                {
                     var transactionData = AcceptInput("id", "new price");
-                    var record = db.transactions!.Where(t => t.Id == Convert.ToInt32(transactionData[0])).First();
+                    var absoluteId = transactions[Convert.ToInt32(transactionData[0]) - 1].Id;
+                    var record = db.transactions!.Where(t => t.Id == absoluteId).First();
                     record.TotalPrice = Convert.ToInt32(transactionData[1]);
                     db.SaveChanges();
                     Console.WriteLine($"{record.CustomerName}'s bill has been changed to {record.TotalPrice} successfully");
@@ -71,52 +104,24 @@ namespace LogSuite
             }
         }
 
-        private static void Remove()
+        private static void Delete()
         {
             using (var db = new TransactionContext())
             {
+                var transactions = db.transactions!.OrderBy(t => t.Id).ToList();
                 try
                 {
-                    var transactionData = AcceptInput("id");
-                    var record = db.transactions!.Where(t => t.Id == Convert.ToInt32(transactionData[0])).First();
+                    var relativeId = AcceptInput("id")[0];
+                    var absoluteId = transactions[Convert.ToInt32(relativeId) - 1].Id;
+                    var record = db.transactions!.Where(t => t.Id == absoluteId).First();
                     db.Remove(record);
                     db.SaveChanges();
                     Console.WriteLine($"Successfully deleted the transaction of {record.CustomerName}");
                 }
 
-                catch
+                catch (IndexOutOfRangeException)
                 {
-                    Console.WriteLine("Make sure you are entering valid values");
-                }
-            }
-        }
-
-        private static void Add()
-        {
-            using (var db = new TransactionContext())
-            {
-                try
-                {
-                    var transactionData = AcceptInput("Customer Name", "Total Price");
-                    db.Add(new Transaction { CustomerName = transactionData[0], TotalPrice = float.Parse(transactionData[1]) });
-                    db.SaveChanges();
-                    Console.WriteLine($"Successfuly added {transactionData[0]} with a bill of {transactionData[1]}"); 
-                }
-
-                catch
-                {
-                    Console.WriteLine("Make sure you are entering valid values");
-                }
-            }
-        }
-
-        private static void ShowAll()
-        {
-            using (var db = new TransactionContext())
-            {
-                foreach (var item in db.transactions!)
-                {
-                    Console.WriteLine($"{item.Id}  {item.CustomerName}  {item.TotalPrice}   {item.CreatedOn}");
+                    Console.WriteLine("Make sure that the value you are entering is from existing logs");
                 }
             }
         }
