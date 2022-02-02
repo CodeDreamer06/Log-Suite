@@ -49,44 +49,46 @@ namespace LogSuite
                     }
                 }
             }
-
-
-
-            //using (var db = new TransactionContext())
-            //{
-            //    Console.WriteLine($"Database path {db.DbPath}");
-
-            //    // Create
-            //    Console.WriteLine("Inserting a new transaction");
-            //    db.Add(new Transaction { CustomerName = "Kevin" });
-            //    db.SaveChanges();
-
-            //    // Read
-            //    Console.WriteLine("Querying for a transaction");
-            //    var transaction = db.transactions.OrderBy(t => t.Id).First();
-            //    Console.WriteLine(transaction!.CustomerName);
-
-            //    // Update
-            //    Console.WriteLine("Updating a transaction by adding a product");
-            //    transaction.Items?.Add(new Product { Name = "Pen", Price = 69 });
-            //    db.SaveChanges();
-            //    Console.WriteLine($"{transaction.Items?.First().Name} {transaction.Items?.First().Price}");
-
-            //    // Delete
-            //    Console.WriteLine("Delete the transaction");
-            //    db.Remove(transaction);
-            //    db.SaveChanges();
-            //}
         }
 
         private static void Edit()
         {
-            throw new NotImplementedException();
+            using (var db = new TransactionContext())
+            {
+                try
+                {
+                    var transactionData = AcceptInput("id", "new price");
+                    var record = db.transactions!.Where(t => t.Id == Convert.ToInt32(transactionData[0])).First();
+                    record.TotalPrice = Convert.ToInt32(transactionData[1]);
+                    db.SaveChanges();
+                    Console.WriteLine($"{record.CustomerName}'s bill has been changed to {record.TotalPrice} successfully");
+                }
+
+                catch
+                {
+                    Console.WriteLine("Make sure you are entering valid values");
+                }
+            }
         }
 
         private static void Remove()
         {
-            throw new NotImplementedException();
+            using (var db = new TransactionContext())
+            {
+                try
+                {
+                    var transactionData = AcceptInput("id");
+                    var record = db.transactions!.Where(t => t.Id == Convert.ToInt32(transactionData[0])).First();
+                    db.Remove(record);
+                    db.SaveChanges();
+                    Console.WriteLine($"Successfully deleted the transaction of {record.CustomerName}");
+                }
+
+                catch
+                {
+                    Console.WriteLine("Make sure you are entering valid values");
+                }
+            }
         }
 
         private static void Add()
@@ -98,11 +100,11 @@ namespace LogSuite
                     var transactionData = AcceptInput("Customer Name", "Total Price");
                     db.Add(new Transaction { CustomerName = transactionData[0], TotalPrice = float.Parse(transactionData[1]) });
                     db.SaveChanges();
+                    Console.WriteLine($"Successfuly added {transactionData[0]} with a bill of {transactionData[1]}"); 
                 }
 
-                catch (Exception ex)
+                catch
                 {
-                    Console.WriteLine(ex);
                     Console.WriteLine("Make sure you are entering valid values");
                 }
             }
@@ -112,7 +114,7 @@ namespace LogSuite
         {
             using (var db = new TransactionContext())
             {
-                foreach (var item in db.transactions)
+                foreach (var item in db.transactions!)
                 {
                     Console.WriteLine($"{item.Id}  {item.CustomerName}  {item.TotalPrice}   {item.CreatedOn}");
                 }
@@ -136,9 +138,14 @@ namespace LogSuite
 
     public class TransactionContext : DbContext
     {
-        public DbSet<Transaction> transactions { get; set; }
+        public TransactionContext()
+        {
+            Database.EnsureCreated();
+        }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder options) => options.UseSqlite($"Data Source=./transactions.db");
+        public DbSet<Transaction>? transactions { get; set; }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder options) => options.UseSqlite($"Data Source=transactions.db");
     }
 
     public class Transaction
